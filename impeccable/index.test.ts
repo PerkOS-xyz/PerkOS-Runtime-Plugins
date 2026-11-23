@@ -8,6 +8,11 @@ test('declares the Impeccable integration and forced settings', () => {
   expect(validatePlugin(plugin)).toBe(plugin)
   const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
   expect(plugin.version).toBe(pkg.version)
+  expect(plugin.license).toEqual({ policy: 'installed-by-person', name: 'Apache-2.0' })
+  const readme = readFileSync(new URL('./README.md', import.meta.url), 'utf8')
+  expect(readme).toContain('Plugin API 0.1.0 only declares environment overrides.')
+  expect(readme).toContain('"telemetry": false')
+  expect(readme).toContain('reviewer and designer seats')
   expect(plugin.capabilities).toEqual(['design.polish-review', 'design.slop-check', 'design.critique'])
   expect(plugin.settings.env).toEqual({
     DO_NOT_TRACK: '1',
@@ -24,23 +29,38 @@ test('declares the Impeccable integration and forced settings', () => {
   })
 })
 
-test('the local probe reports a missing engine with manual install instructions', () => {
-  const { probe, installInstructions } = plugin.detect
-  expect(probe).toEqual({ executable: 'impeccable-engine', args: ['engine-probe'] })
-  const result = spawnSync(probe.executable, probe.args, {
+// The API validates declarations. This harness exercises the documented Runtime protocol.
+function evaluateDetection(runProbe: (executable: string, args: readonly string[]) => {
+  status: number | null
+  stdout: string | null
+}) {
+  const { probe, versionPattern, installInstructions } = plugin.detect
+  const result = runProbe(probe.executable, probe.args)
+  const version = result.status === 0
+    ? new RegExp(versionPattern).exec(result.stdout ?? '')?.[1]
+    : undefined
+  return version ? { status: 'found', version } : { status: 'missing', installInstructions }
+}
+
+test('the declared probe yields missing status and installation guidance without the engine', () => {
+  expect(plugin.detect.probe).toEqual({ executable: 'impeccable-engine', args: ['engine-probe'] })
+  const detection = evaluateDetection((executable, args) => spawnSync(executable, args, {
     env: { ...plugin.settings.env, PATH: '' },
     encoding: 'utf8',
-  })
+  }))
 
-  expect(result.error).toHaveProperty('code', 'ENOENT')
-  expect(installInstructions).toContain('https://github.com/pbakaus/impeccable/releases')
-  expect(installInstructions).toContain('engine-v0.1.28')
-  expect(installInstructions).toContain(probe.executable)
+  expect(detection).toEqual({
+    status: 'missing',
+    installInstructions: expect.stringContaining('https://github.com/pbakaus/impeccable/releases'),
+  })
+  expect(detection.installInstructions).toContain('impeccable-engine')
 })
 
 test('captures the installed version from probe output', () => {
-  const pattern = new RegExp(plugin.detect.versionPattern)
-  expect(pattern.exec('impeccable-engine 0.1.28\n')?.[1]).toBe('0.1.28')
-  expect(pattern.exec('impeccable-engine 0.1.28-rc.1+build\r\n')?.[1]).toBe('0.1.28-rc.1+build')
-  expect(pattern.exec('error: engine unavailable\n')).toBeNull()
+  expect(evaluateDetection(() => ({ status: 0, stdout: 'impeccable-engine 0.1.28\n' })))
+    .toEqual({ status: 'found', version: '0.1.28' })
+  expect(evaluateDetection(() => ({ status: 0, stdout: 'impeccable-engine 0.1.28-rc.1+build\r\n' })))
+    .toEqual({ status: 'found', version: '0.1.28-rc.1+build' })
+  expect(evaluateDetection(() => ({ status: 0, stdout: 'error: engine unavailable\n' })).status)
+    .toBe('missing')
 })

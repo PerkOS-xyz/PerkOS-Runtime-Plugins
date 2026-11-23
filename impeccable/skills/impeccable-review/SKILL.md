@@ -3,6 +3,8 @@ name: impeccable-review
 description: Critique an interface or review it for final polish using Impeccable detector findings and visual evidence.
 ---
 
+Use the upstream Impeccable critique or polish guidance when the operator has installed it for this seat. Use the Runtime detector command below for evidence. Leave installation, automatic hooks, and Live mode to the operator.
+
 Read the product and design brief if available. Inspect the target at the viewports relevant to its audience and exercise the main interaction, including keyboard navigation where applicable.
 
 Run the Runtime's `impeccable-detect` command with a source path or rendered URL as its target. Verify findings against the interface. If the engine is missing, continue the visual review and report that the scan was unavailable.

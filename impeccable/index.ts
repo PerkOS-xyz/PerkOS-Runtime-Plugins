@@ -16,7 +16,7 @@ export default definePlugin({
       '(engine-v0.1.28 or later). Place it on the Runtime PATH as impeccable-engine ' +
       '(impeccable-engine.exe on Windows) and make it executable on Unix.',
   },
-  license: { policy: 'bundled', name: 'Apache-2.0' },
+  license: { policy: 'installed-by-person', name: 'Apache-2.0' },
   capabilities: ['design.polish-review', 'design.slop-check', 'design.critique'],
   use: [
     { kind: 'skills', files: ['skills/impeccable-review/SKILL.md'] },
