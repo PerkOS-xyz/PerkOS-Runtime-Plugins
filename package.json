@@ -1,0 +1,31 @@
+{
+  "name": "perkos-runtime-plugins",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "plugin-api",
+    "ffmpeg",
+    "openscreen",
+    "effectcraft",
+    "impeccable",
+    "hallmark",
+    "remotion"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "release": "node scripts/release.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/semver": "^7.7.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.12"
+  },
+  "dependencies": {
+    "semver": "^7.7.0"
+  },
+  "overrides": {
+    "vite": "^7.0.0"
+  }
+}
