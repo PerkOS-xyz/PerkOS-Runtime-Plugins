@@ -1,0 +1,9 @@
+{
+  "name": "@perkos/effectcraft",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": "./index.ts",
+  "dependencies": {
+    "@perkos/plugin-api": "0.1.0"
+  }
+}
