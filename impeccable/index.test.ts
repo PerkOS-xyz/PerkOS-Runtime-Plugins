@@ -26,6 +26,7 @@ test('declares the Impeccable integration and forced settings', () => {
 
 test('the local probe reports a missing engine with manual install instructions', () => {
   const { probe, installInstructions } = plugin.detect
+  expect(probe).toEqual({ executable: 'impeccable-engine', args: ['engine-probe'] })
   const result = spawnSync(probe.executable, probe.args, {
     env: { ...plugin.settings.env, PATH: '' },
     encoding: 'utf8',
@@ -33,6 +34,7 @@ test('the local probe reports a missing engine with manual install instructions'
 
   expect(result.error).toHaveProperty('code', 'ENOENT')
   expect(installInstructions).toContain('https://github.com/pbakaus/impeccable/releases')
+  expect(installInstructions).toContain('engine-v0.1.28')
   expect(installInstructions).toContain(probe.executable)
 })
 

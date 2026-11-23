@@ -12,8 +12,9 @@ export default definePlugin({
     probe: { executable, args: ['engine-probe'] },
     versionPattern: '^impeccable-engine (\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?)\\s*$',
     installInstructions:
-      'Install the native engine for your platform from https://github.com/pbakaus/impeccable/releases ' +
-      'under the name impeccable-engine (impeccable-engine.exe on Windows) on the Runtime PATH.',
+      'Get the native engine asset for your OS and CPU from https://github.com/pbakaus/impeccable/releases ' +
+      '(engine-v0.1.28 or later). Place it on the Runtime PATH as impeccable-engine ' +
+      '(impeccable-engine.exe on Windows) and make it executable on Unix.',
   },
   license: { policy: 'bundled', name: 'Apache-2.0' },
   capabilities: ['design.polish-review', 'design.slop-check', 'design.critique'],
