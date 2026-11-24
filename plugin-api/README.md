@@ -1,6 +1,6 @@
 # PerkOS Runtime plugin API
 
-Import `definePlugin`, `validatePlugin`, and contract types such as `Plugin` from `@perkos/plugin-api`. The workspace package exports TypeScript source.
+Import `definePlugin`, `validatePlugin`, and contract types such as `Plugin` from `@perkos/plugin-api`. Workspace imports resolve TypeScript source. The local tarball exports ESM JavaScript and TypeScript declarations.
 
 ```ts
 import { definePlugin } from '@perkos/plugin-api'
@@ -34,3 +34,51 @@ export default definePlugin({
 - `settings.env` contains environment overrides the Runtime applies to the tool's processes, including the probe. Use an empty object when no overrides are required.
 
 The Runtime loads each validated declaration through a Cordis plugin. Its Cordis scope owns registrations, managed processes, and copied files. Disposal unregisters commands and MCP servers, stops managed processes, and removes or restores seat files changed by activation. The contract package is dependency-free. Cordis integration and effect cleanup are the Runtime loader's responsibility.
+
+## Adapters and seat availability
+
+v0.1 defines three adapter kinds. `shell` declares a named command and argument array, `mcp` declares a server command and one or both of the `claude-code` and `codex` seat identifiers, and `skills` declares package-relative files. Shell and skills entries carry no seat field. These declarations describe what a plugin offers. Actual per-runtime shell, MCP, and skills availability is pending Runtime TASK-732 and depends on the adapter installed for the specific seat and node. Both pinned validators check declarations, including the two MCP seat identifiers.
+
+## Pack and consume locally
+
+Run from the catalogue root with npm workspace dependencies installed.
+
+```sh
+npm run build --workspace @perkos/plugin-api
+npm pack ./plugin-api/dist
+```
+
+In an independent ESM project, run `npm install /absolute/path/to/perkos-plugin-api-0.1.0.tgz`. Use `module: "NodeNext"` when checking TypeScript. For Node ESM, resolve the fixture through its versioned package export.
+
+```js
+import { readFileSync } from 'node:fs'
+import { validatePlugin } from '@perkos/plugin-api'
+
+const fixture = import.meta.resolve('@perkos/plugin-api/fixtures/v0.1/manifest-conformance.json')
+const { cases } = JSON.parse(readFileSync(new URL(fixture), 'utf8'))
+validatePlugin(cases.find(entry => entry.name === 'valid-shell').manifest)
+```
+
+The tarball is private and packs the staged SDK from `plugin-api/dist`. The independent consumer check installed the tarball, loaded both JavaScript exports, read the fixture through the package export, and typechecked a `Plugin` import using the packaged declaration.
+
+## Manifest conformance
+
+The fixture export contains complete JSON manifests. Each case has expected outcomes for catalogue `validatePlugin` and Runtime `parsePluginManifest`. An outcome is either `accept` or the rejected field path. The default test run checks the catalogue. To check both validators, run this with a Runtime checkout at the pinned revision and with the parser file matching that commit.
+
+```sh
+PERKOS_RUNTIME_CHECKOUT=/absolute/path/to/PerkOS-Runtime \
+  npm run test:conformance --workspace @perkos/plugin-api
+```
+
+GitHub main revisions at preflight were Plugins `0ac1610e8d2090c6a1674015bf40addbbb753f52` and Runtime `735ab6eef90bce46661b04b2d69cb2e0d1a82289`. The comparison uses the catalogue validator from this worktree and that exact Runtime revision, which includes Runtime TASK-728. The existing FFmpeg, Impeccable, and Remotion declarations are also tested after JSON serialization.
+
+### Open skill-path compatibility findings
+
+| Fixture | Segment | Catalogue | Runtime |
+| --- | --- | --- | --- |
+| `drift-skill-leading-whitespace` | ` example` | Accept | Reject `use[0].files[0]` |
+| `drift-skill-trailing-whitespace` | `example ` | Accept | Reject `use[0].files[0]` |
+| `drift-skill-trailing-dot` | `example.` | Accept | Reject `use[0].files[0]` |
+| `drift-skill-parent-with-trailing-whitespace` | `.. ` | Accept | Reject `use[0].files[0]` |
+
+PerkOS-Runtime-Plugins owns the follow-up. Check released manifests for these segment forms, align catalogue validation with Runtime's archive path rule, and update the four fixture outcomes after the shared rejection is verified against the pinned Runtime parser.
