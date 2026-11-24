@@ -96,7 +96,7 @@ function usage(value: unknown, path: string): void {
     case 'skills':
       list(entry.files, path + '.files', (file, itemPath) => {
         const name = string(file, itemPath)
-        if (/[\\:]/.test(name) || name.split('/').some(part => !part.trim() || part === '.' || part === '..')) {
+        if (/[\\:]/.test(name) || name.split('/').some(part => !part || part.trim() !== part || part.endsWith('.'))) {
           invalid(itemPath, 'a plugin-relative path using forward slashes')
         }
       })
