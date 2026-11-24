@@ -17,7 +17,7 @@ type Fixture = {
 const fixtures: { version: string; cases: Fixture[] } = JSON.parse(readFileSync(
   new URL('./fixtures/manifest-conformance.json', import.meta.url), 'utf8',
 ))
-const runtimeRevision = '735ab6eef90bce46661b04b2d69cb2e0d1a82289'
+const runtimeRevision = 'db2e1c5272708fa16f49fcbb7354f5632994c359'
 
 function check(validate: () => unknown, manifest: unknown, expected: string) {
   if (expected === 'accept') {

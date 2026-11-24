@@ -63,22 +63,15 @@ The tarball is private and packs the staged SDK from `plugin-api/dist`. The inde
 
 ## Manifest conformance
 
-The fixture export contains complete JSON manifests. Each case has expected outcomes for catalogue `validatePlugin` and Runtime `parsePluginManifest`. An outcome is either `accept` or the rejected field path. The default test run checks the catalogue. To check both validators, run this with a Runtime checkout at the pinned revision and with the parser file matching that commit.
+The fixture export contains complete JSON manifests. Each case has expected outcomes for catalogue `validatePlugin` and Runtime `parsePluginManifest`. An outcome is either `accept` or the rejected field path. The default test run checks the catalogue. To check both validators, run this with a Runtime checkout outside the catalogue tree at the pinned revision and with the parser file matching that commit.
 
 ```sh
 PERKOS_RUNTIME_CHECKOUT=/absolute/path/to/PerkOS-Runtime \
   npm run test:conformance --workspace @perkos/plugin-api
 ```
 
-GitHub main revisions at preflight were Plugins `0ac1610e8d2090c6a1674015bf40addbbb753f52` and Runtime `735ab6eef90bce46661b04b2d69cb2e0d1a82289`. The comparison uses the catalogue validator from this worktree and that exact Runtime revision, which includes Runtime TASK-728. The existing FFmpeg, Impeccable, and Remotion declarations are also tested after JSON serialization.
+GitHub main revisions at preflight were Plugins `39bfd909fa742c5edf0e06d6bbe9ba6fbd9d035b` and Runtime `db2e1c5272708fa16f49fcbb7354f5632994c359`. The comparison uses the catalogue validator from this worktree and the parser at that exact Runtime revision.
 
-### Open skill-path compatibility findings
+Both validators reject skill-path segments with leading whitespace, trailing whitespace, or a trailing dot. This includes a parent segment followed by whitespace. Internal spaces are allowed. The fixtures agree on every tested case, including valid v0.1 manifests for all three adapters and serialized FFmpeg, Impeccable, and Remotion declarations.
 
-| Fixture | Segment | Catalogue | Runtime |
-| --- | --- | --- | --- |
-| `drift-skill-leading-whitespace` | ` example` | Accept | Reject `use[0].files[0]` |
-| `drift-skill-trailing-whitespace` | `example ` | Accept | Reject `use[0].files[0]` |
-| `drift-skill-trailing-dot` | `example.` | Accept | Reject `use[0].files[0]` |
-| `drift-skill-parent-with-trailing-whitespace` | `.. ` | Accept | Reject `use[0].files[0]` |
-
-PerkOS-Runtime-Plugins owns the follow-up. Check released manifests for these segment forms, align catalogue validation with Runtime's archive path rule, and update the four fixture outcomes after the shared rejection is verified against the pinned Runtime parser.
+This tightens SDK validation for paths the Runtime already rejects. The v0.1 manifest shape and adapter support are unchanged. The current catalogue declarations pass both validators, and GitHub listed no catalogue release tags or releases at preflight.
