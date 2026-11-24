@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { definePlugin, validatePlugin } from '@perkos/plugin-api'
-import type { Plugin } from '@perkos/plugin-api'
+import { classifyToolVersion, definePlugin, validatePlugin } from '@perkos/plugin-api'
+import type { Plugin, PrerequisiteReadiness } from '@perkos/plugin-api'
+import manifestFixtures from '@perkos/plugin-api/fixtures/v0.1/manifest-conformance.json' with { type: 'json' }
+
+const prerequisites = manifestFixtures.requiredTools
 
 const plugin = {
   id: 'example-editor',
@@ -71,5 +74,61 @@ describe('plugin contract', () => {
     ['settings.env["SAFE_MODE"]', { ...plugin, settings: { env: { SAFE_MODE: true } } }],
   ])('rejects invalid %s', (path, declaration) => {
     expect(() => validatePlugin(declaration)).toThrow('Invalid plugin ' + path + ':')
+  })
+})
+
+describe('required tool declarations', () => {
+  const manifest = validatePlugin(prerequisites.cases[0].manifest)
+  if (manifest.manifestVersion !== '0.2') throw new Error('Expected a v0.2 fixture')
+  const [tool] = manifest.prerequisites
+
+  it('preserves the typed declaration through definePlugin and serialization', () => {
+    const defined = definePlugin({ ...manifest, id: 'consumer-plugin' })
+    expect(defined.prerequisites[0].id).toBe('example-tool')
+    expect(validatePlugin(JSON.parse(JSON.stringify(defined)))).toEqual(defined)
+  })
+
+  const { prerequisites: tools, ...withoutTools } = manifest
+  it.each([
+    ['prerequisites', withoutTools],
+    ['prerequisites', { ...manifest, prerequisites: [] }],
+    ['prerequisites', { ...manifest, prerequisites: Array(17).fill(tool) }],
+    ['manifestVersion', { ...plugin, prerequisites: tools }],
+    ['manifestVersion', { ...manifest, manifestVersion: '0.3' }],
+    ['runtimeApi', { ...manifest, runtimeApi: '>=0.1.0 || 2.0.0' }],
+    ['detect', { ...manifest, detect: plugin.detect }],
+    ['manifest.installer', { ...manifest, installer: plugin.detect.probe }],
+    ['prerequisites[1].id', { ...manifest, prerequisites: [tool, tool] }],
+  ])('rejects invalid manifest field %s', (path, declaration) => {
+    expect(() => validatePlugin(declaration)).toThrow('Invalid plugin ' + path + ':')
+  })
+
+  it.each([
+    ['kind', { kind: 'service' }],
+    ['kind', { kind: 'future-kind' }],
+    ['id', { id: 'a'.repeat(65) }],
+    ['label', { label: '' }],
+    ['versions.minimum', { versions: { ...tool.versions, minimum: 'latest' } }],
+    ['versions.before', { versions: { ...tool.versions, before: tool.versions.minimum } }],
+    ['detect.executable', { detect: { ...tool.detect, executable: './example-tool' } }],
+    ['detect.versionFlag', { detect: { ...tool.detect, versionFlag: 'start' } }],
+    ['detect.args', { detect: { ...tool.detect, args: ['--install'] } }],
+    ['installInstructions', { installInstructions: {} }],
+    ['installInstructions.linux', { installInstructions: { linux: '' } }],
+    ['installInstructions.other', { installInstructions: { other: 'Install the tool.' } }],
+    ['credentials', { credentials: {} }],
+  ])('rejects invalid prerequisite field %s', (path, override) => {
+    const declaration = { ...manifest, prerequisites: [{ ...tool, ...override }] }
+    expect(() => validatePlugin(declaration)).toThrow('Invalid plugin prerequisites[0].' + path + ':')
+  })
+
+  it.each(prerequisites.observedVersions)('classifies $version as $status', ({ version, status }) => {
+    const readiness: PrerequisiteReadiness = {
+      requirementId: tool.id,
+      executionNodeId: 'example-node',
+      ...classifyToolVersion(tool, version),
+    }
+    expect(readiness.status).toBe(status)
+    if (status !== 'unavailable') expect(readiness).toHaveProperty('detectedVersion', version)
   })
 })

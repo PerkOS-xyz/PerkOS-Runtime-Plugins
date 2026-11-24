@@ -379,5 +379,92 @@
         "settings": {"env":{}}
       }
     }
-  ]
+  ],
+  "requiredTools": {
+    "version": "0.2",
+    "cases": [
+      {
+        "name": "required-tool",
+        "expected": {
+          "catalogue": "accept",
+          "runtime": "detect"
+        },
+        "manifest": {
+          "manifestVersion": "0.2",
+          "id": "version-example",
+          "version": "0.1.0",
+          "runtimeApi": "2.0.0",
+          "license": {
+            "policy": "installed-by-person",
+            "name": "MIT"
+          },
+          "capabilities": [
+            "example.version"
+          ],
+          "use": [
+            {
+              "kind": "shell",
+              "id": "version",
+              "command": {
+                "executable": "example-tool",
+                "args": [
+                  "--version"
+                ]
+              }
+            }
+          ],
+          "settings": {
+            "env": {}
+          },
+          "prerequisites": [
+            {
+              "kind": "executable",
+              "id": "example-tool",
+              "label": "Example Tool",
+              "versions": {
+                "minimum": "1.2.0",
+                "before": "2.0.0"
+              },
+              "detect": {
+                "executable": "example-tool",
+                "versionFlag": "--version",
+                "stdoutPrefix": "example-tool "
+              },
+              "installInstructions": {
+                "darwin": "Install Example Tool 1.x (1.2 or later) from your approved macOS software catalogue.",
+                "linux": "Install Example Tool 1.x (1.2 or later) from your approved distribution package source.",
+                "win32": "Install Example Tool 1.x (1.2 or later) from your approved Windows software catalogue and make it available on PATH."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "observedVersions": [
+      {
+        "version": "1.1.9",
+        "status": "incompatible"
+      },
+      {
+        "version": "1.2.0",
+        "status": "ready"
+      },
+      {
+        "version": "1.10.0+packager",
+        "status": "ready"
+      },
+      {
+        "version": "2.0.0",
+        "status": "incompatible"
+      },
+      {
+        "version": "1.3.0-rc.1",
+        "status": "incompatible"
+      },
+      {
+        "version": "unknown",
+        "status": "unavailable"
+      }
+    ]
+  }
 }

@@ -7,6 +7,7 @@ import { validatePlugin } from '@perkos/plugin-api'
 import ffmpeg from '../ffmpeg/index.js'
 import impeccable from '../impeccable/index.js'
 import remotion from '../remotion/index.js'
+import manifestFixtures from '@perkos/plugin-api/fixtures/v0.1/manifest-conformance.json' with { type: 'json' }
 
 type Fixture = {
   name: string
@@ -14,9 +15,8 @@ type Fixture = {
   manifest: unknown
 }
 
-const fixtures: { version: string; cases: Fixture[] } = JSON.parse(readFileSync(
-  new URL('./fixtures/manifest-conformance.json', import.meta.url), 'utf8',
-))
+const fixtures: { version: string; cases: Fixture[] } = manifestFixtures
+const prerequisiteFixtures = manifestFixtures.requiredTools
 const runtimeRevision = 'db2e1c5272708fa16f49fcbb7354f5632994c359'
 
 function check(validate: () => unknown, manifest: unknown, expected: string) {
@@ -41,6 +41,11 @@ test('fixture set declares its wire version and names each expected divergence',
 test.each(fixtures.cases)('catalogue: $name', ({ manifest, expected }) => {
   const serialized = JSON.stringify(manifest)
   check(() => validatePlugin(JSON.parse(serialized)), manifest, expected.catalogue)
+})
+
+test.each(prerequisiteFixtures.cases)('catalogue v0.2: $name', ({ manifest, expected }) => {
+  expect(prerequisiteFixtures.version).toBe('0.2')
+  check(() => validatePlugin(JSON.parse(JSON.stringify(manifest))), manifest, expected.catalogue)
 })
 
 const catalogue = [ffmpeg, impeccable, remotion]
@@ -85,6 +90,10 @@ if (process.env.PERKOS_COMPARE_RUNTIME === '1') {
     })
 
     test.each(fixtures.cases)('Runtime: $name', ({ manifest, expected }) => {
+      check(() => parsePluginManifest(JSON.stringify(manifest)), manifest, expected.runtime)
+    })
+
+    test.each(prerequisiteFixtures.cases)('legacy Runtime compatibility fence: $name', ({ manifest, expected }) => {
       check(() => parsePluginManifest(JSON.stringify(manifest)), manifest, expected.runtime)
     })
 
