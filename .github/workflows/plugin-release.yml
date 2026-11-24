@@ -1,0 +1,62 @@
+name: Plugin release
+
+on:
+  push:
+    tags:
+      - '*@*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plugin-release-${{ github.ref }}
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Pack and validate the tagged plugin
+        run: |
+          digest=$(npm run --silent pack:plugin -- "${GITHUB_REF_NAME%%@*}" "${GITHUB_REF_NAME#*@}")
+          printf '%s  dist/plugin.zip\n' "$digest" | sha256sum --check
+          printf 'SHA-256 (plugin.zip): `%s`\n' "$digest" > dist/checksum.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin-release
+          path: |
+            dist/plugin.zip
+            dist/checksum.md
+          if-no-files-found: error
+
+  publish:
+    needs: pack
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: plugin-release
+      - name: Publish the archive and checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          if gh release view "$tag" --json body --jq .body > release-notes.md; then
+            gh release upload "$tag" plugin.zip --clobber
+            sed -i '/^SHA-256 (plugin\.zip): /d' release-notes.md
+            printf '\n' >> release-notes.md
+            cat checksum.md >> release-notes.md
+            gh release edit "$tag" --notes-file release-notes.md
+          else
+            gh release create "$tag" plugin.zip --verify-tag --title "$tag" --notes-file checksum.md
+          fi

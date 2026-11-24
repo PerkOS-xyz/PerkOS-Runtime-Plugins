@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { validatePlugin } from '@perkos/plugin-api'
@@ -11,6 +11,7 @@ describe('FFmpeg detection', () => {
 
   beforeEach(() => {
     bin = mkdtempSync(join(tmpdir(), 'perkos-ffmpeg-'))
+    symlinkSync(process.execPath, join(bin, 'node'))
   })
 
   afterEach(() => {

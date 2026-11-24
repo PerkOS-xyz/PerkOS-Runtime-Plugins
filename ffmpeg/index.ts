@@ -34,7 +34,7 @@ export default definePlugin({
   version: '0.1.0',
   runtimeApi: '>=0.1.0 <0.2.0',
   detect: {
-    probe: { executable: process.execPath, args: ['-e', versionProbe] },
+    probe: { executable: 'node', args: ['-e', versionProbe] },
     versionPattern: '^ffmpeg version (\\S+)',
     installInstructions: 'Install FFmpeg with brew install ffmpeg on macOS or sudo apt install ffmpeg on Debian/Ubuntu. Make sure both ffmpeg and ffprobe are on PATH.',
   },
