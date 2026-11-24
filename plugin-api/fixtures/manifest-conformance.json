@@ -1,0 +1,383 @@
+{
+  "version": "0.1",
+  "cases": [
+    {
+      "name": "valid-shell",
+      "expected": {"catalogue":"accept","runtime":"accept"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":["{{input}}"]}}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "valid-mcp-both-seats",
+      "expected": {"catalogue":"accept","runtime":"accept"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"bundled","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"mcp","id":"serve","command":{"executable":"example-tool","args":["serve"]},"seats":["claude-code","codex"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "valid-skills",
+      "expected": {"catalogue":"accept","runtime":"accept"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["skills/example/SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "valid-all-entries-prerelease-build-and-range-alternatives",
+      "expected": {"catalogue":"accept","runtime":"accept"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0-rc.1+build.2",
+        "runtimeApi": "~0.1.0 || >=0.2.0 <0.3.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":["{{input}}"]}},{"kind":"mcp","id":"serve","command":{"executable":"example-tool","args":["serve"]},"seats":["claude-code","codex"]},{"kind":"skills","files":["skills/my skill/SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "valid-not-allowed-license-declaration",
+      "expected": {"catalogue":"accept","runtime":"accept"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"not-allowed","name":"Restricted license"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":["{{input}}"]}}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-shell-arguments",
+      "expected": {"catalogue":"use[0].command.args","runtime":"use[0].command.args"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":"{{input}}"}}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-use-kind",
+      "expected": {"catalogue":"use[0].kind","runtime":"use[0].kind"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"command"}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "unsupported-mcp-seat",
+      "expected": {"catalogue":"use[0].seats[1]","runtime":"use[0].seats[1]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"mcp","id":"serve","command":{"executable":"example-tool","args":["serve"]},"seats":["codex","openclaw"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-mcp-empty-seats",
+      "expected": {"catalogue":"use[0].seats","runtime":"use[0].seats"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"mcp","id":"serve","command":{"executable":"example-tool","args":["serve"]},"seats":[]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-release-version",
+      "expected": {"catalogue":"version","runtime":"version"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "v0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":["{{input}}"]}}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-semver-numeric-prerelease",
+      "expected": {"catalogue":"version","runtime":"version"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0-01",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":["{{input}}"]}}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-api-range-shorthand",
+      "expected": {"catalogue":"runtimeApi","runtime":"runtimeApi"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": "^0.1",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":["{{input}}"]}}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-api-range-empty-alternative",
+      "expected": {"catalogue":"runtimeApi","runtime":"runtimeApi"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": "^0.1.0 ||",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":["{{input}}"]}}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-probe-regex",
+      "expected": {"catalogue":"detect.versionPattern","runtime":"detect.versionPattern"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"(","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":["{{input}}"]}}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-probe-only-noncapturing-group",
+      "expected": {"catalogue":"detect.versionPattern","runtime":"detect.versionPattern"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^(?:example-tool)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":["{{input}}"]}}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-license-policy",
+      "expected": {"catalogue":"license.policy","runtime":"license.policy"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"unknown","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"shell","id":"run","command":{"executable":"example-tool","args":["{{input}}"]}}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-skill-absolute",
+      "expected": {"catalogue":"use[0].files[0]","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["/skills/SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-skill-parent-traversal",
+      "expected": {"catalogue":"use[0].files[0]","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["skills/../SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-skill-current-directory",
+      "expected": {"catalogue":"use[0].files[0]","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["skills/./SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-skill-backslash",
+      "expected": {"catalogue":"use[0].files[0]","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["skills\\SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-skill-drive-letter",
+      "expected": {"catalogue":"use[0].files[0]","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["C:/skills/SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-skill-empty-segment",
+      "expected": {"catalogue":"use[0].files[0]","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["skills//SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "invalid-skill-whitespace-only-segment",
+      "expected": {"catalogue":"use[0].files[0]","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["skills/ /SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "drift-skill-leading-whitespace",
+      "expected": {"catalogue":"accept","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["skills/ example/SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "drift-skill-trailing-whitespace",
+      "expected": {"catalogue":"accept","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["skills/example /SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "drift-skill-trailing-dot",
+      "expected": {"catalogue":"accept","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["skills/example./SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    },
+    {
+      "name": "drift-skill-parent-with-trailing-whitespace",
+      "expected": {"catalogue":"accept","runtime":"use[0].files[0]"},
+      "manifest": {
+        "id": "conformance-tool",
+        "version": "0.1.0",
+        "runtimeApi": ">=0.1.0 <0.2.0",
+        "detect": {"probe":{"executable":"example-tool","args":["--version"]},"versionPattern":"^example-tool (\\S+)","installInstructions":"Install Example Tool from your approved catalogue."},
+        "license": {"policy":"installed-by-person","name":"MIT"},
+        "capabilities": ["example.run"],
+        "use": [{"kind":"skills","files":["skills/.. /SKILL.md"]}],
+        "settings": {"env":{}}
+      }
+    }
+  ]
+}
