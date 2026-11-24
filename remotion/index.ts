@@ -6,7 +6,7 @@ export default definePlugin({
   runtimeApi: '>=0.1.0 <0.2.0',
   detect: {
     probe: {
-      executable: process.execPath,
+      executable: 'node',
       args: ['--input-type=commonjs', '--no-global-search-paths', '-e', "console.log(require('@remotion/cli/package.json').version)"],
     },
     versionPattern: '^(\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?)\\s*$',

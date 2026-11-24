@@ -14,6 +14,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "pack:plugin": "node scripts/pack-plugin.ts",
     "release": "node scripts/release.ts"
   },
   "devDependencies": {
