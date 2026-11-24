@@ -1,0 +1,13 @@
+{
+  "name": "example-tool",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/plugin.mjs validate",
+    "pack": "node scripts/plugin.mjs pack"
+  },
+  "dependencies": {
+    "@perkos/plugin-api": "0.1.0"
+  }
+}
