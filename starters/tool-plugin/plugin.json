@@ -1,0 +1,49 @@
+{
+  "id": "example-tool",
+  "version": "0.1.0",
+  "manifestVersion": "0.2",
+  "runtimeApi": "2.0.0",
+  "license": {
+    "policy": "installed-by-person",
+    "name": "MIT"
+  },
+  "capabilities": [
+    "example.tool"
+  ],
+  "prerequisites": [
+    {
+      "kind": "executable",
+      "id": "node",
+      "label": "Node.js",
+      "versions": {
+        "minimum": "22.0.0",
+        "before": "23.0.0"
+      },
+      "detect": {
+        "executable": "node",
+        "versionFlag": "--version",
+        "stdoutPrefix": "v"
+      },
+      "installInstructions": {
+        "darwin": "Install Node.js 22.",
+        "linux": "Install Node.js 22.",
+        "win32": "Install Node.js 22."
+      }
+    }
+  ],
+  "use": [
+    {
+      "kind": "shell",
+      "id": "node-version",
+      "command": {
+        "executable": "node",
+        "args": [
+          "--version"
+        ]
+      }
+    }
+  ],
+  "settings": {
+    "env": {}
+  }
+}
